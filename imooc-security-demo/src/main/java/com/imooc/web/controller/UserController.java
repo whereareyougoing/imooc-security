@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
 import com.imooc.dto.User;
 import com.imooc.dto.UserQueryCondition;
+import com.imooc.exception.UserNotExitException;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.data.domain.Pageable;
@@ -100,11 +101,51 @@ public class UserController {
     @GetMapping(value = "/{id:\\d+}")
     @JsonView(User.UserDetailView.class)
     public User getInfo(@PathVariable(name = "id") String id){
+
+        System.out.println("获取用户信息");
         User user = new User();
         user.setUsername("tom");
         return user;
     }
 
+
+    /**
+     * 自定义异常处理，json返回
+     * @param id
+     * @return
+     */
+    @GetMapping(value = "/getUserInfo/{id:\\d+}")
+    @JsonView(User.UserDetailView.class)
+    public User getUserInfo(@PathVariable(name = "id") String id){
+        throw  new UserNotExitException(id);
+    }
+
+    /**
+     * 浏览器默认的异常处理
+     * 直接跳转到自定义的错误页面
+     * @param id
+     * @return
+     */
+    @GetMapping(value = "/getUserInfo1/{id:\\d+}")
+    @JsonView(User.UserDetailView.class)
+    public User getUserInfo1(@PathVariable(name = "id") String id){
+        throw  new RuntimeException("获取用户信息异常");
+    }
+
+
+    /**
+     * 被切面处理的异常，异常是不会传到拦截器里面的
+     *
+     * 抛一个拦截器处理的异常
+     * @param id
+     * @return
+     */
+    @GetMapping(value = "/getUserInfo2/{id:\\d+}")
+    @JsonView(User.UserDetailView.class)
+    public User getUserInfo2(@PathVariable(name = "id") String id){
+        System.out.println("获取用户信息");
+        throw  new RuntimeException("获取用户信息异常");
+    }
 
 
 }
